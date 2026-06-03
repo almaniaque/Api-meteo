@@ -7,6 +7,7 @@ function creerImmediat() {
 
     let vueImd = document.createElement("section");
     let infos = document.createElement("article")
+    let infos1 = document.createElement("article")
     let Ville = document.createElement("h1");
     let Temp = document.createElement("h2");
     let Hum = document.createElement("h2");
@@ -27,26 +28,31 @@ function creerImmediat() {
     icon.setAttribute("id", "icon");
 
     //bootstrap
-    vueImd.setAttribute("class", "row container")
-    Ville.setAttribute("class", "col-12")
-    Temp.setAttribute("class", "col")
-    Hum.setAttribute("class", "col")
-    Vent.setAttribute("class", "col")
-    Nuage.setAttribute("class", "col")
-    description.setAttribute("class", "col")
-    ics.setAttribute("class", "row")
-    icon.setAttribute("class", "col")
+    vueImd.setAttribute("class", "row container text-center text-bg-dark border border-info rounded-4")
+    Ville.setAttribute("class", "col-12 p-4")
+    infos.setAttribute("class", "col-9")
+    infos1.setAttribute("class", "row border border-info rounded-4 mb-5")
+    Temp.setAttribute("class", "col-6 p-5")
+    Hum.setAttribute("class", "col-6 p-5")
+    Vent.setAttribute("class", "col-6 p-5")
+    Nuage.setAttribute("class", "col-6 p-5")
+    description.setAttribute("class", "col-12 p-5")
+    ics.setAttribute("class", "col-3 mb-5 border text-center border-info rounded-4")
+    icon.setAttribute("class", "col-12 mt-5 p-5 ")
 
 
-
+    //attribution html
     vueImd.appendChild(Ville);
-    vueImd.appendChild(Temp);
-    vueImd.appendChild(Hum);
-    vueImd.appendChild(Vent);
-    vueImd.appendChild(Nuage);
-    vueImd.appendChild(description);
-    vueImd.appendChild(icon);
+    infos1.appendChild(Temp);
+    infos1.appendChild(Hum);
+    infos1.appendChild(Vent);
+    infos1.appendChild(Nuage);
+    infos1.appendChild(description);
+    infos.appendChild(infos1);
 
+    ics.appendChild(icon);
+    vueImd.appendChild(ics);
+    vueImd.appendChild(infos)
     main.appendChild(vueImd);
 }
 
