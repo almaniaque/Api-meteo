@@ -2,6 +2,9 @@
 let main = document.querySelector("main");
 let imediat = document.getElementById("immediat");
 let prevision = document.getElementById("prevision");
+let joursPrevision = [];
+let jourActuel = 0;
+
 
 function creerImmediat() {
 
@@ -28,7 +31,7 @@ function creerImmediat() {
     icon.setAttribute("id", "icon");
 
     //bootstrap
-    vueImd.setAttribute("class", "row container text-center text-bg-dark border border-info rounded-4")
+    vueImd.setAttribute("class", "row text-center text-bg-dark border border-info rounded-4 mb-5")
     Ville.setAttribute("class", "col-12 p-4")
     infos.setAttribute("class", "col-9")
     infos1.setAttribute("class", "row border border-info rounded-4 mb-5")
@@ -54,6 +57,95 @@ function creerImmediat() {
     vueImd.appendChild(ics);
     vueImd.appendChild(infos)
     main.appendChild(vueImd);
+}
+
+function creerPrevision() {
+    let div = document.createElement("div");
+    let tableau = document.createElement("table");
+    let entete = document.createElement("thead");
+    let structure = document.createElement("tr");
+    let col1 = document.createElement("th");
+    let col2 = document.createElement("th");
+    let col3 = document.createElement("th");
+    let col4 = document.createElement("th");
+    let body = document.createElement("tbody");
+
+    body.setAttribute("id", "body");
+
+    //bootstrap
+    div.setAttribute("class", "container text-center mt-5 ");
+    tableau.setAttribute("class", "table table-dark table-striped table-bordered border-info ");
+
+    col1.setAttribute("scope", "col");
+    col2.setAttribute("scope", "col");
+    col3.setAttribute("scope", "col");
+    col4.setAttribute("scope", "col");
+
+    col1.innerHTML = "Date";
+    col2.innerHTML = "Température";
+    col3.innerHTML = "Description";
+    col4.innerHTML = "";
+
+    //attribution html
+    structure.appendChild(col1);
+    structure.appendChild(col2);
+    structure.appendChild(col3);
+    structure.appendChild(col4);
+
+    entete.appendChild(structure);
+    tableau.appendChild(entete);
+    tableau.appendChild(body);
+    div.appendChild(tableau);
+    main.appendChild(div);
+}
+
+function creerpagination() {
+    let section = document.createElement("section");
+    let nav = document.createElement("nav");
+    let ul = document.createElement("ul");
+
+    let liPrev = document.createElement("li");
+    let liPage = document.createElement("li");
+    let liNext = document.createElement("li");
+
+    let buttonPrev = document.createElement("button");
+    let buttonPage = document.createElement("button");
+    let buttonNext = document.createElement("button");
+
+    nav.setAttribute("aria-label", "Page navigation");
+
+    ul.setAttribute("class", "pagination justify-content-center");
+
+    liPrev.setAttribute("class", "page-item");
+    liPage.setAttribute("class", "page-item");
+    liNext.setAttribute("class", "page-item");
+
+    buttonPrev.setAttribute("id", "prevButton");
+    buttonPrev.setAttribute("class", "page-link");
+    buttonPrev.textContent = "Précédent";
+
+    buttonPage.setAttribute("id", "pageActuelle");
+    buttonPage.setAttribute("class", "page-link");
+    buttonPage.textContent = jourActuel + 1;
+
+    buttonNext.setAttribute("id", "nextButton");
+    buttonNext.setAttribute("class", "page-link");
+    buttonNext.textContent = "Suivant";
+
+    liPrev.appendChild(buttonPrev);
+    liPage.appendChild(buttonPage);
+    liNext.appendChild(buttonNext);
+
+    ul.appendChild(liPrev);
+    ul.appendChild(liPage);
+    ul.appendChild(liNext);
+
+    nav.appendChild(ul);
+    section.appendChild(nav);
+    main.appendChild(section);
+
+    buttonPrev.addEventListener("click", jourPrecedent);
+    buttonNext.addEventListener("click", jourSuivant);
 }
 
 async function getData() {
@@ -85,69 +177,6 @@ async function getData() {
 
 }
 
-
-function creerPrevision() {
-    let div = document.createElement("div")
-    let tableau = document.createElement("table");
-    let entete = document.createElement("thead");
-    let structure = document.createElement("tr");
-    let structure1 = document.createElement("tr");
-    let col1 = document.createElement("th");
-    let col2 = document.createElement("th");
-    let col3 = document.createElement("th");
-    let col4 = document.createElement("th");
-    let body = document.createElement("tbody");
-    let struct1 = document.createElement("td");
-    let struct2 = document.createElement("td");
-    let struct3 = document.createElement("td");
-    let struct4 = document.createElement("td");
-
-
-    entete.setAttribute("id", "head")
-    structure.setAttribute("id", "structure")
-    structure1.setAttribute("id", "structure")
-    col1.setAttribute("id", "date")
-    col2.setAttribute("id", "temperature")
-    col3.setAttribute("id", "description")
-    col4.setAttribute("id", "icons")
-    body.setAttribute("id", "body")
-    struct1.setAttribute("id", "struct1")
-    struct2.setAttribute("id", "struct2")
-    struct3.setAttribute("id", "struct3")
-    struct4.setAttribute("id", "struct4")
-
-    //bootstrap
-    div.setAttribute("class", "container")
-    tableau.setAttribute("class", "table table-dark table-striped");
-    structure.setAttribute("scope", "row")
-    structure1.setAttribute("scope", "row")
-    col1.setAttribute("scope", "col");
-    col2.setAttribute("scope", "col");
-    col3.setAttribute("scope", "col");
-    col4.setAttribute("scope", "col");
-    struct1.setAttribute("scope", "col");
-    struct2.setAttribute("scope", "col");
-    struct3.setAttribute("scope", "col");
-    struct4.setAttribute("scope", "col");
-
-    //attribution a la page
-
-    structure.appendChild(col1);
-    structure.appendChild(col2);
-    structure.appendChild(col3);
-    structure.appendChild(col4);
-    entete.appendChild(structure);
-    tableau.appendChild(entete);
-    structure1.appendChild(struct1);
-    structure1.appendChild(struct2);
-    structure1.appendChild(struct3);
-    structure1.appendChild(struct4);
-    body.appendChild(structure1);
-    tableau.appendChild(body);
-    div.appendChild(tableau);
-    main.appendChild(div);
-};
-
 async function getdataforecast() {
     const ville = document.getElementById("ville").value.trim();
 
@@ -167,45 +196,86 @@ async function getdataforecast() {
 
         const resultat = await reponse.json();
 
-        const body = document.getElementById("body");
-        body.innerHTML = "";
+        // On regroupe les prévisions par jour
+        const groupes = {};
 
         resultat.list.forEach(prevision => {
-            const ligne = document.createElement("tr");
+            const jour = prevision.dt_txt.split(" ")[0];
 
-            const date = document.createElement("td");
-            const temperature = document.createElement("td");
-            const description = document.createElement("td");
-            const icons = document.createElement("td");
-            const img = document.createElement("img");
+            if (!groupes[jour]) {
+                groupes[jour] = [];
+            }
 
-            date.textContent = prevision.dt_txt;
-            temperature.textContent = prevision.main.temp + " °C";
-            description.textContent = prevision.weather[0].description;
-
-            img.src = `https://openweathermap.org/img/wn/${prevision.weather[0].icon}.png`;
-            img.alt = prevision.weather[0].description;
-
-            icons.appendChild(img);
-
-            ligne.appendChild(date);
-            ligne.appendChild(temperature);
-            ligne.appendChild(description);
-            ligne.appendChild(icons);
-
-            body.appendChild(ligne);
+            groupes[jour].push(prevision);
         });
+
+        joursPrevision = Object.values(groupes);
+        jourActuel = 0;
+
+        afficherJour();
 
     } catch (erreur) {
         console.error(erreur.message);
     }
 }
 
+function afficherJour() {
+    const pageActuelle = document.getElementById("pageActuelle");
+
+    if (pageActuelle) {
+        pageActuelle.textContent = `${jourActuel + 1} / ${joursPrevision.length}`;
+    }
+    const body = document.getElementById("body");
+    body.innerHTML = "";
+
+    const previsionsDuJour = joursPrevision[jourActuel];
+
+    previsionsDuJour.forEach(prevision => {
+        const ligne = document.createElement("tr");
+
+        const date = document.createElement("td");
+        const temperature = document.createElement("td");
+        const description = document.createElement("td");
+        const icons = document.createElement("td");
+        const img = document.createElement("img");
+
+        date.textContent = prevision.dt_txt;
+        temperature.textContent = prevision.main.temp + " °C";
+        description.textContent = prevision.weather[0].description;
+
+        img.src = `https://openweathermap.org/img/wn/${prevision.weather[0].icon}.png`;
+        img.alt = prevision.weather[0].description;
+
+        icons.appendChild(img);
+
+        ligne.appendChild(date);
+        ligne.appendChild(temperature);
+        ligne.appendChild(description);
+        ligne.appendChild(icons);
+
+        body.appendChild(ligne);
+    });
+}
+
+function jourSuivant() {
+    if (jourActuel < joursPrevision.length - 1) {
+        jourActuel++;
+        afficherJour();
+    }
+}
+
+function jourPrecedent() {
+    if (jourActuel > 0) {
+        jourActuel--;
+        afficherJour();
+    }
+}
 
 document.getElementById("recup").addEventListener("click", function () {
     main.innerHTML = "";
     creerImmediat();
     getData();
+    creerpagination()
     creerPrevision();
     getdataforecast();
 });
