@@ -147,7 +147,7 @@ function creerPrevision() {
     div.appendChild(tableau);
     main.appendChild(div);
 };
-/*
+
 async function getdataforecast() {
     const ville = document.getElementById("ville").value.trim();
 
@@ -156,20 +156,56 @@ async function getdataforecast() {
         return;
     }
 
-    const urlPrev = `https://api.openweathermap.org/data/2.5/forecast?q=${ville}&appid=9d63106b0003583259d7d973d5addfa9&units=metric&lang=fr&cnt=3`;
+    const urlPrev = `https://api.openweathermap.org/data/2.5/forecast?q=${ville}&appid=9d63106b0003583259d7d973d5addfa9&units=metric&lang=fr`;
 
     try {
-        const reponse = await fetch(url);
+        const reponse = await fetch(urlPrev);
+
         if (!reponse.ok) {
+            throw new Error(`Statut de réponse : ${reponse.status}`);
         }
-        throw new Error(`Statut de réponse : ${reponse.status}`);
 
         const resultat = await reponse.json();
+
+        const body = document.getElementById("body");
+        body.innerHTML = "";
+
+        resultat.list.forEach(prevision => {
+            const ligne = document.createElement("tr");
+
+            const date = document.createElement("td");
+            const temperature = document.createElement("td");
+            const description = document.createElement("td");
+            const icons = document.createElement("td");
+            const img = document.createElement("img");
+
+            date.textContent = prevision.dt_txt;
+            temperature.textContent = prevision.main.temp + " °C";
+            description.textContent = prevision.weather[0].description;
+
+            img.src = `https://openweathermap.org/img/wn/${prevision.weather[0].icon}.png`;
+            img.alt = prevision.weather[0].description;
+
+            icons.appendChild(img);
+
+            ligne.appendChild(date);
+            ligne.appendChild(temperature);
+            ligne.appendChild(description);
+            ligne.appendChild(icons);
+
+            body.appendChild(ligne);
+        });
+
+    } catch (erreur) {
+        console.error(erreur.message);
     }
 }
-*/
+
+
 document.getElementById("recup").addEventListener("click", function () {
+    main.innerHTML = "";
     creerImmediat();
     getData();
     creerPrevision();
+    getdataforecast();
 });
